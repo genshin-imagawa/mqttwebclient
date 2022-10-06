@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <title>MQTT WEB CLIENT</title>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.js"
+      integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"
+      type="text/javascript"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
+      integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/locale/ja.min.js"
+      integrity="sha512-rElveAU5iG1CzHqi7KbG1T4DQIUCqhitISZ9nqJ2Z4TP0z4Aba64xYhwcBhHQMddRq27/OKbzEFZLOJarNStLg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="js/main.js" charset="UTF-8"></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+      integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+      integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <nav class="navbar navbar-dark bg-dark">
+      <h1 class="text-light">MQTT WEB CLIENT</h1>
+    </nav>
+    <nav class="navbar navbar-dark bg-dark">
+      <div class="form-row mr-auto ml-auto text-light">
+        <div class="form-group col-md-3">
+          <label>Host</label>
+          <input
+            type="text"
+            class="form-control"
+            id="host"
+            value="35.78.177.133"
+          />
+        </div>
+        <div class="form-group col-md-1">
+          <label>Port</label>
+          <input type="text" class="form-control" id="port" value="1884" />
+        </div>
+        <div class="form-group col-md-2">
+          <label>User</label>
+          <input type="text" class="form-control" id="user" value="admin" />
+        </div>
+        <div class="form-group col-md-2">
+          <label>Password</label>
+          <input type="password" class="form-control" id="pass" value="password" />
+        </div>
+        <div class="form-group col-md-1 ml-3">
+          <label>&nbsp;</label>
+          <button id="connectBtn" class="btn btn-success">CONNECT</button>
+        </div>
+      </div>
+    </nav>
+    <nav id="connectBar" class="navbar bg-danger"></nav>
+    <div style="height: 50px">
+      <div id="alertDiv" class="alert d-none text-center" role="alert"></div>
+    </div>
+    <div class="d-flex flex-row mb-3 w-75 mx-auto">
+      <div class="p-2 mx-2 w-50 bg-light">
+        <div>
+          <div class="row">
+            <div class="col-8 ml-2 border-bottom">
+              <h3>Publish</h3>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-11">
+              <label>Topic</label>
+              <input type="text" class="form-control" id="pubTopic" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-11">
+              <label>Message</label>
+              <input type="text" class="form-control" id="pubMessage" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-2">
+              <label>Retain</label>
+              <input
+                type="checkbox"
+                class="form-control"
+                id="pubRetain"
+                style="width: 30px"
+              />
+            </div>
+            <div class="form-group col-md-2">
+              <label>QoS</label>
+              <select id="pubQos" class="form-control">
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+              </select>
+            </div>
+            <div class="form-group col-md-7 text-right">
+              <label>&nbsp;</label><br />
+              <button id="publishBtn" class="btn btn-info">Publish</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="row">
+            <div class="col-8 ml-2 border-bottom">
+              <h3>Subscribe</h3>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-8">
+              <label>Topic</label>
+              <input type="text" class="form-control" id="subTopic" />
+            </div>
+            <div class="form-group col-md-3 text-right">
+              <label>&nbsp;</label><br />
+              <button id="subscribeBtn" class="btn btn-info">Subscribe</button>
+            </div>
+          </div>
+          <div id="subscribedDiv">
+            <h4>Subscribed Topics</h4>
+            <div id="topicsDiv">
+              <div id="subTopicTemplate" class="form-row" style="display: none">
+                <div
+                  class="form-group col-md-8 bg-info text-white"
+                  style="overflow-wrap: break-word"
+                >
+                  <span></span>
+                </div>
+                <div class="form-group col-md-3 text-right">
+                  <button class="btn btn-secondary ml-1">Unsubscribe</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="p-2 mx-2 w-50 bg-light">
+        <div>
+          <div class="row">
+            <div class="col-7 ml-2 border-bottom">
+              <h3>Messages</h3>
+            </div>
+            <div class="col-3 ml-auto">
+              <button id="clearMessagesBtn" class="btn btn-secondary">Clear</button>
+            </div>
+          </div>
+          <div id="receivedDiv">
+            <div
+              id="messageTemplate"
+              class="row bg-info text-white m-1 px-4 py-1"
+              style="display: none"
+            >
+              <div class="col-11" style="overflow-wrap: anywhere">
+                <div class="row">
+                  <span>Topic : </span>
+                  <span class="topic-span ml-1"></span>
+                </div>
+                <div class="row">
+                  <span>Payload : </span>
+                  <span class="payload-span ml-1"></span>
+                </div>
+                <div class="row border-top">
+                  <span class="time-span text-muted"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
